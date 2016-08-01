@@ -44,6 +44,9 @@ int thisTime = 0;
 int lastTime = 0;
 int timer = 0;
 
+//game running
+bool gameRunning = true;
+
 int playerHitPoints = 3;
 
 //create the SDL_Rectangle for the textures position and size - x,y,w,h
@@ -62,7 +65,7 @@ float Y_pos = 0.0f;
 
 int main(int argc, char* argv[]) {
 
-//Cout to show we are running on Windows
+//cout to show we are running on Windows
 #if defined(_WIN32) || (_WIN64)
 	cout << "Running on Windows" << endl;
 	//string var to hold the current working directory on __APPLE__
@@ -72,7 +75,7 @@ int main(int argc, char* argv[]) {
 	string audio_dir = currentWorkingDirectory + "\\PiedPiperResource\\Audio\\";
 #endif
 
-//Cout to show that we are running on Linux
+//cout to show that we are running on Linux
 #if defined(__linux__)
 	cout << "Running on Linux" << endl;
 	cout << "Added on Linux" << endl;
@@ -83,7 +86,7 @@ int main(int argc, char* argv[]) {
 	string audio_dir = currentWorkingDirectory + "/PiedPiperResource/Audio/";
 #endif
 
-//Cout to show that we are running on Apple
+//cout to show that we are running on Apple
 #if defined(__APPLE__)
 	cout << "Running on Apple" << endl;
 	//string var to hold the current working directory on __APPLE__
@@ -148,9 +151,8 @@ int main(int argc, char* argv[]) {
 	Player player = Player(renderer, 0, images_dir.c_str(), audio_dir.c_str(),50.0f, 618.0f);
 
     // The window is open: could enter program loop here (see SDL_PollEvent())
-	while(true)
+	while(gameRunning == true)
 	{
-
 		//set up frame rate for the section, or CASE
 		thisTime = SDL_GetTicks();
 		deltaTime = (float)(thisTime - lastTime)/1000;
@@ -162,19 +164,34 @@ int main(int argc, char* argv[]) {
 			//check to see if the SDL Window is closed - player clicks X in window
 			if(event.type == SDL_QUIT)
 			{
+				gameRunning = false;
 				break;
 			}
-
-			switch(event.type)
+			if(event.type == SDL_KEYDOWN)
 			{
-			//case keyboardmovement
+				switch(event.key.keysym.sym)
+				{
+				//case keyboardmovement
+				case SDLK_ESCAPE:
+					gameRunning = false;
+				break;
+				//move right
+				case SDLK_RIGHT:
+					player.moveRight = true;
+					player.moveX += 5;
+				break;
+				//move left
+				case SDLK_LEFT:
+					player.moveLeft = true;
+					//player.moveX--;
+				break;
 
-			//break
+				}
 			}
 		}
 
 		//update player
-		//player.Update(deltaTime);
+		player.Update(deltaTime);
 
 		//draw section
 		//clear the SDL rendertarget

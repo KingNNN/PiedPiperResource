@@ -40,10 +40,10 @@ public:
 	SDL_Rect health5_Rect, health4_Rect, health3_Rect, health2_Rect, health1_Rect, health_Background_Rect;
 
 	//textures for ammo bar
-	SDL_Texture *ammo10, *ammo_Background;
+	SDL_Texture *ammo10, *ammo9, *ammo8, *ammo7, *ammo6, *ammo5, *ammo4, *ammo3, *ammo2, *ammo1, *ammo0, *ammo_Background;
 
 	//rectangles for the health bar images
-	SDL_Rect ammo10_Rect, ammo_Background_Rect;
+	SDL_Rect ammo10_Rect, ammo9_Rect, ammo8_Rect, ammo7_Rect, ammo6_Rect, ammo5_Rect, ammo4_Rect, ammo3_Rect, ammo2_Rect, ammo1_Rect, ammo0_Rect, ammo_Background_Rect;
 
 	//textures for flag
 	SDL_Texture *flag, *flag_Background;
@@ -63,7 +63,7 @@ public:
 	//string to hold the path to the player's texture
 	string playerPath;
 
-	//integer for the player's numer
+	//integer for the player's number
 	int playerNum;
 
 	//player's texture to hold img
@@ -80,7 +80,10 @@ public:
 	float speed;
 
 	//float for the player's position to avoid precisou loss
-	float pos_X, pos_Y;
+	float moveX, moveY;
+
+	bool moveRight;
+	bool moveLeft;
 
 	//add x and y values
 	Sint16 Xvalue, Yvalue;
@@ -89,6 +92,12 @@ public:
 	float playerAngle;
 
 	int getTime;
+
+	//player speed
+	float playerSpeed;
+
+	//player ammo count
+	int ammoCount;
 
 	//point that will be used to rotate the it - relative to teh center
 	SDL_Point center;
