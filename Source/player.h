@@ -70,14 +70,11 @@ public:
 	SDL_Texture *texture;
 
 	//player's SDL_Rect for the X, Y, W, and H of texture
-	SDL_Rect posRect;
+	SDL_Rect playerPos;
 
 	//floats to hold the hoystick axis(-1 or 0 or 1)
 	float xDir, xDirOld;
 	float yDir, yDirOld;
-
-	//float for player speed
-	float speed;
 
 	//float for the player's position to avoid precisou loss
 	float moveX, moveY;
@@ -93,7 +90,9 @@ public:
 
 	int getTime;
 
-	//player speed
+	//player physics
+	int playerVelocityX;
+	int playerVelocityY;
 	float playerSpeed;
 
 	//player ammo count

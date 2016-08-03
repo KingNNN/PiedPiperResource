@@ -56,9 +56,6 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	moveRight = false;
 	moveLeft = false;
 
-	//set float for player speed
-	speed = 200.0f;
-
 	//player path to image
 	playerPath = filePath + "player.png";
 
@@ -66,14 +63,14 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	texture = IMG_LoadTexture(renderer, playerPath.c_str());
 
 	//set the SDL_Rect X and Y for the player
-	posRect.x = x;
-	posRect.y = y;
+	playerPos.x = x;
+	playerPos.y = y;
 
 	int w, h;
 	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 
-	posRect.w = w;
-	posRect.h = h;
+	playerPos.w = w;
+	playerPos.h = h;
 
 	//set the movement floats to the players original X and Y
 	moveX = x;
@@ -84,18 +81,22 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	yDirOld = 0;
 
 	//center of the image rectangle
-	center.x = posRect.w/2;
-	center.y = posRect.h/2;
+	center.x = playerPos.w/2;
+	center.y = playerPos.h/2;
 
 	//player speed
-	playerSpeed = 10;
+	playerSpeed = 1;
+
+	//set the velocity of the player
+	playerVelocityX = 0;
+	playerVelocityY = 0;
 
 }
 
 void Player::Draw(SDL_Renderer *renderer)
 {
 	//draw the player texture using the vars texture and posRect
-	SDL_RenderCopyEx(renderer, texture, NULL, &posRect, playerAngle, &center, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(renderer, texture, NULL, &playerPos, playerAngle, &center, SDL_FLIP_NONE);
 
 	//display player health
 	if(playerHealth == 5)
@@ -172,23 +173,7 @@ void Player::Draw(SDL_Renderer *renderer)
 
 void Player::Update(float deltaTime)
 {
-//	float radians = (playerAngle * 3.14)/180;
-//
-//	//get the x and y values to move
-//	float move_x = speed * cos(radians);
-//	float move_y = speed * sin(radians);
-//
-//	//update for precision loss
-//	moveX += (move_x) * deltaTime;
-//	moveY += (move_y) * deltaTime;
-
-	if(moveRight == true)
-	{
-		posRect.x = speed * deltaTime;
-	}
-
-	//posRect.y = (int)(moveY + 0.5f);
-
+	playerPos.x += playerVelocityX;
 //	if(posRect.x < 0)
 //	{
 //		posRect.x = 0;
@@ -212,6 +197,5 @@ void Player::Update(float deltaTime)
 //		posRect.y = 768 - posRect.h;
 //		pos_Y = posRect.y;
 //	}
-
 }
 

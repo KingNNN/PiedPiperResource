@@ -167,25 +167,36 @@ int main(int argc, char* argv[]) {
 				gameRunning = false;
 				break;
 			}
-			if(event.type == SDL_KEYDOWN)
+			if(event.type == SDL_KEYDOWN && event.key.repeat == 0)
 			{
 				switch(event.key.keysym.sym)
 				{
-				//case keyboardmovement
-				case SDLK_ESCAPE:
-					gameRunning = false;
-				break;
-				//move right
-				case SDLK_RIGHT:
-					player.moveRight = true;
-					player.moveX += 5;
-				break;
-				//move left
-				case SDLK_LEFT:
-					player.moveLeft = true;
-					//player.moveX--;
-				break;
-
+					//case keyboardmovement
+					case SDLK_ESCAPE:
+						gameRunning = false;
+					break;
+					//move right
+					case SDLK_RIGHT:
+						player.playerVelocityX += player.playerSpeed;
+					break;
+					//move left
+					case SDLK_LEFT:
+						player.playerVelocityX -= player.playerSpeed;
+					break;
+				}
+			}
+			else if(event.type == SDL_KEYUP && event.key.repeat == 0)
+			{
+				switch(event.key.keysym.sym)
+				{
+					//move right
+					case SDLK_RIGHT:
+						player.playerVelocityX -= player.playerSpeed;
+					break;
+					//move left
+					case SDLK_LEFT:
+						player.playerVelocityX += player.playerSpeed;
+					break;
 				}
 			}
 		}
