@@ -57,10 +57,15 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	moveLeft = false;
 
 	//player path to image
-	playerPath = filePath + "player.png";
+	playerPath = filePath + "playerAnim1.png";
+
+	//path to player threw the flute
+	playerThrew = filePath + "playerAnim2.png";
 
 	//loat the surface into the texture
 	texture = IMG_LoadTexture(renderer, playerPath.c_str());
+	//load threw texture of the player
+	texture2 = IMG_LoadTexture(renderer, playerThrew.c_str());
 
 	//set the SDL_Rect X and Y for the player
 	playerPos.x = x;
@@ -91,12 +96,20 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	playerVelocityX = 0;
 	playerVelocityY = 0;
 
+	threw = false;
 }
 
 void Player::Draw(SDL_Renderer *renderer)
 {
-	//draw the player texture using the vars texture and posRect
-	SDL_RenderCopyEx(renderer, texture, NULL, &playerPos, playerAngle, &center, SDL_FLIP_NONE);
+
+	if(threw == false)
+	{
+		//draw the player texture using the vars texture and posRect
+		SDL_RenderCopyEx(renderer, texture, NULL, &playerPos, playerAngle, &center, SDL_FLIP_NONE);
+	}else{
+		SDL_RenderCopyEx(renderer, texture2, NULL, &playerPos, playerAngle, &center, SDL_FLIP_NONE);
+	}
+
 
 	//display player health
 	if(playerHealth == 5)

@@ -50,9 +50,13 @@ bool gameRunning = true;
 //enemy alive
 bool eAlive = true;
 bool pAlive = true;
+bool enemyDead = false;
 
 int playerHitPoints = 3;
 int ammoCount = 10;
+
+//rotate images
+float rotatePic;
 
 //create the SDL_Rectangle for the textures position and size - x,y,w,h
 SDL_Rect backgroundPos;
@@ -69,11 +73,16 @@ SDL_Rect pBulletPos;
 // Create a SDL Rectangle for the roomTexture's position and size
 SDL_Rect deathPos;
 
+//center of the image to rotate
+SDL_Point center;
+
 //cursor float vars for moement
 float pos_X, pos_Y;
 
 float X_pos = 0.0f;
 float Y_pos = 0.0f;
+
+float timeReset = 0;
 
 #include <vector>
 
@@ -165,15 +174,27 @@ int main(int argc, char* argv[]) {
 
 	//create a SDL surface to hold the background image
 	SDL_Surface *surface2 = IMG_Load((images_dir + "enemyWizard.png").c_str());
+	SDL_Surface *surface2Hit = IMG_Load((images_dir + "enemyWizardHit.png").c_str());
+	SDL_Surface *surface2Dead = IMG_Load((images_dir + "enemyWizardDead.png").c_str());
+	SDL_Surface *surface2Hit2 = IMG_Load((images_dir + "enemyWizardHit2.png").c_str());
 	
 	// SDL Texture
-	SDL_Texture *turret;
+	SDL_Texture *turret2;
+	SDL_Texture *turret2Hit;
+	SDL_Texture *turret2Dead;
+	SDL_Texture *turret2Hit2;
 
 	//place surface info into the texture bkdg1
-	turret = SDL_CreateTextureFromSurface(renderer, surface2);
+	turret2 = SDL_CreateTextureFromSurface(renderer, surface2);
+	turret2Hit = SDL_CreateTextureFromSurface(renderer, surface2Hit);
+	turret2Dead = SDL_CreateTextureFromSurface(renderer, surface2Dead);
+	turret2Hit2 = SDL_CreateTextureFromSurface(renderer, surface2Hit2);
 
 	//free the SDL surface
 	SDL_FreeSurface(surface2);
+	SDL_FreeSurface(surface2Hit);
+	SDL_FreeSurface(surface2Dead);
+	SDL_FreeSurface(surface2Hit2);
 
 	// Set the x, y, width and height SDL Rectangle values
 	turretPos.x = 650;
@@ -261,8 +282,8 @@ int main(int argc, char* argv[]) {
 	int pBulletDir = 0;
 
 	// vars for playerHealth and bullet health
-	int pHealth = 10;
-	int eHealth = 5;
+	//int pHealth = 10;
+	int eHealth = 1;
 
 	//init random number seed
 	srand(time(NULL));
@@ -306,23 +327,24 @@ int main(int argc, char* argv[]) {
 						// Check to see if the player fired
 					case SDLK_SPACE:
 						// check to see if bullet is not already active
-						if (pBulletActive == false)
+						if (pBulletActive == false && player.ammoCount > 0)
 						{
 							player.ammoCount -= 1;
 							// move to player's position
 							pBulletPos.x = player.playerPos.x;
-							pBulletPos.y = (player.playerPos.y + (player.playerPos.h / 2));
+							pBulletPos.y = (player.playerPos.y + (player.playerPos.h / 2) - 20);
 
 							// check to see if the player is to the left or right of the turret and set the
 							// player's bulletDir as needed
 							if (player.playerPos.x < turretPos.x) {
-								pBulletDir = 5;
+								pBulletDir = 10;
 							}
 							else {
-								pBulletDir = -5;
+								pBulletDir = -10;
 							}
 							// active bullet
 							pBulletActive = true;
+							player.threw = true;
 						}
 						break;
 					}
@@ -344,8 +366,20 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
+		center.x = eBulletPos.w/2;
+		center.y = eBulletPos.h/2;
+
+		if(enemyDead == true)
+		{
+			timeReset += 1;
+		}else{
+			timeReset = 0;
+		}
+
 		//update player
 		player.Update(deltaTime);
+
+		rotatePic += 15;
 
 		//check the distance to player
 		double distancex = ((turretPos.x + (turretPos.w / 2))
@@ -441,6 +475,7 @@ int main(int argc, char* argv[]) {
 		if (SDL_HasIntersection(&turretPos, &pBulletPos) && turretActive == true && eAlive == true) {
 
 			//reset player bullet
+			player.threw = false;
 			pBulletActive = false;
 			pBulletPos.x = -200;
 			pBulletPos.y = -200;
@@ -455,6 +490,7 @@ int main(int argc, char* argv[]) {
 		if (SDL_HasIntersection(&turretPos, &pBulletPos) && turretActive == false && eAlive == true) {
 
 			//reset player bullet
+			player.threw = false;
 			pBulletActive = false;
 			pBulletPos.x = -200;
 			pBulletPos.y = -200;
@@ -470,6 +506,9 @@ int main(int argc, char* argv[]) {
 		{
 			pAlive = false;
 		}
+
+		cout << timeReset << endl;
+
 		//draw section
 		//clear the SDL rendertarget
 		SDL_RenderClear(renderer);
@@ -478,31 +517,40 @@ int main(int argc, char* argv[]) {
 
 		//draw enemy bullet if active
 		if (eBulletActive && eAlive == true && pAlive == true) {
-			SDL_RenderCopy(renderer, eBullet, NULL, &eBulletPos);
+			SDL_RenderCopyEx(renderer, eBullet, NULL, &eBulletPos, rotatePic, &center, SDL_FLIP_NONE);
 		}
 
 		//draw player bullet if active
 		if (pBulletActive && pAlive == true) {
-			SDL_RenderCopy(renderer, playerBullet, NULL, &pBulletPos);
-		}
-
-		if (pAlive == true) {
-			//draw player
-			player.Draw(renderer);
-		}
-		else {
-			SDL_RenderCopy(renderer, deathScreen, NULL, &deathPos);
+			SDL_RenderCopyEx(renderer, playerBullet, NULL, &pBulletPos, rotatePic, &center, SDL_FLIP_NONE);
 		}
 
 		//check enemy health 
 		if (eHealth > 0)
 		{
 			//draw enemy 
-			SDL_RenderCopy(renderer, turret, NULL, &turretPos);
-		}
-		else {
+			SDL_RenderCopy(renderer, turret2, NULL, &turretPos);
+		}else if(eHealth <= 0)
+		{
+			enemyDead = true;
+			if(timeReset <= 15){
+				SDL_RenderCopy(renderer, turret2Hit, NULL, &turretPos);
+			}else if(timeReset <= 35)
+			{
+				SDL_RenderCopy(renderer, turret2Hit2, NULL, &turretPos);
+			}else{
+				SDL_RenderCopy(renderer, turret2Dead, NULL, &turretPos);
+			}
 			turretActive = false;
 		}
+
+		if (pAlive == true) {
+					//draw player
+					player.Draw(renderer);
+				}
+				else {
+					SDL_RenderCopy(renderer, deathScreen, NULL, &deathPos);
+				}
 
 		SDL_RenderPresent(renderer);
 

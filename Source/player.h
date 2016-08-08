@@ -61,13 +61,14 @@ public:
 	float playerHealth, maxHealth;
 
 	//string to hold the path to the player's texture
-	string playerPath;
+	string playerPath, playerThrew;
 
 	//integer for the player's number
 	int playerNum;
 
 	//player's texture to hold img
 	SDL_Texture *texture;
+	SDL_Texture *texture2;
 
 	//player's SDL_Rect for the X, Y, W, and H of texture
 	SDL_Rect playerPos;
@@ -97,6 +98,9 @@ public:
 
 	//player ammo count
 	int ammoCount;
+
+	//if player threw the flute
+	bool threw;
 
 	//point that will be used to rotate the it - relative to teh center
 	SDL_Point center;
