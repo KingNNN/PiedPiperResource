@@ -85,7 +85,7 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	center.y = playerPos.h/2;
 
 	//player speed
-	playerSpeed = 1;
+	playerSpeed = 5;
 
 	//set the velocity of the player
 	playerVelocityX = 0;
@@ -174,28 +174,16 @@ void Player::Draw(SDL_Renderer *renderer)
 void Player::Update(float deltaTime)
 {
 	playerPos.x += playerVelocityX;
-//	if(posRect.x < 0)
-//	{
-//		posRect.x = 0;
-//		pos_X = posRect.x;
-//	}
-//
-//	if(posRect.x > 1024 - posRect.w)
-//	{
-//		posRect.x = 1024 - posRect.w;
-//		pos_X = posRect.x;
-//	}
-//
-//	if(posRect.y < 0)
-//	{
-//		posRect.y = 0;
-//		pos_Y = posRect.y;
-//	}
-//
-//	if(posRect.y > 768 - posRect.h)
-//	{
-//		posRect.y = 768 - posRect.h;
-//		pos_Y = posRect.y;
-//	}
+
+	//if player goes to far left
+	if(playerPos.x < 20)
+	{
+		playerPos.x = 20;
+	}
+	//if player goes to far left
+	if (playerPos.x > 970)
+	{
+		playerPos.x = 970;
+	}
 }
 

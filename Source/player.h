@@ -93,7 +93,7 @@ public:
 	//player physics
 	int playerVelocityX;
 	int playerVelocityY;
-	float playerSpeed;
+	int playerSpeed;
 
 	//player ammo count
 	int ammoCount;

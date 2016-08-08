@@ -47,10 +47,27 @@ int timer = 0;
 //game running
 bool gameRunning = true;
 
+//enemy alive
+bool eAlive = true;
+bool pAlive = true;
+
 int playerHitPoints = 3;
+int ammoCount = 10;
 
 //create the SDL_Rectangle for the textures position and size - x,y,w,h
 SDL_Rect backgroundPos;
+
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect turretPos;
+
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect eBulletPos;
+
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect pBulletPos;
+
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect deathPos;
 
 //cursor float vars for moement
 float pos_X, pos_Y;
@@ -144,8 +161,111 @@ int main(int argc, char* argv[]) {
 
     //////////////////////////////////////////////////////////////////////////////////
 
+	// ******************* Create the turret texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surface2 = IMG_Load((images_dir + "enemyWizard.png").c_str());
+	
+	// SDL Texture
+	SDL_Texture *turret;
+
+	//place surface info into the texture bkdg1
+	turret = SDL_CreateTextureFromSurface(renderer, surface2);
+
+	//free the SDL surface
+	SDL_FreeSurface(surface2);
+
+	// Set the x, y, width and height SDL Rectangle values
+	turretPos.x = 650;
+	turretPos.y = 618;
+	turretPos.w = 50;
+	turretPos.h = 50;
+
+	// ******************* Create the turret texture - END *******************
+	// ******************* Create the enemy bullet texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surface3 = IMG_Load((images_dir + "enemyBullet.png").c_str());
+
+	// SDL Texture
+	SDL_Texture *eBullet;
+
+	// load the image into the texture
+	eBullet = SDL_CreateTextureFromSurface(renderer, surface3);
+
+	//free the SDL surface
+	SDL_FreeSurface(surface3);
+
+	// Set the x, y, width and height SDL Rectangle values
+	eBulletPos.x = -200;
+	eBulletPos.y = -200;
+	eBulletPos.w = 16;
+	eBulletPos.h = 16;
+
+	// ******************* Create the enemy bullet texture - END *******************
+	// ******************* Create the player bullet texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surface4 = IMG_Load((images_dir + "playerBullet.png").c_str());
+
+	// SDL Texture
+	SDL_Texture *playerBullet;
+
+	// load the image into the texture
+	playerBullet = SDL_CreateTextureFromSurface(renderer, surface4);
+
+	//free the SDL surface
+	SDL_FreeSurface(surface4);
+
+	// Set the x, y, width and height SDL Rectangle values
+	pBulletPos.x = -100;
+	pBulletPos.y = -100;
+	pBulletPos.w = 16;
+	pBulletPos.h = 16;
+
+	// ******************* Create the player bullet texture - END *******************
+
+	// ******************* Create the death texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surface5 = IMG_Load((images_dir + "deathScreen.png").c_str());
+
+	// SDL Texture
+	SDL_Texture *deathScreen;
+
+	// load the image into the texture
+	deathScreen = SDL_CreateTextureFromSurface(renderer, surface5);
+
+	//free the SDL surface
+	SDL_FreeSurface(surface5);
+
+	// Set the x, y, width and height SDL Rectangle values
+	deathPos.x = 0;
+	deathPos.y = 0;
+	deathPos.w = 1024;
+	deathPos.h = 768;
+
+	// ******************* Create the deat texture - END *******************
+
 	//***** SDL Event to handle input *****
 	SDL_Event event;
+
+	// boolean to see if the turret is active
+	bool turretActive = false;
+
+	//basic vars for simple player(p)/enemy(e) bullet fire with 1 bullet each
+	bool eBulletActive = true;
+	bool pBulletActive = true;
+
+	int eBulletDir = 0;
+	int pBulletDir = 0;
+
+	// vars for playerHealth and bullet health
+	int pHealth = 10;
+	int eHealth = 5;
+
+	//init random number seed
+	srand(time(NULL));
 
 	//create player
 	Player player = Player(renderer, 0, images_dir.c_str(), audio_dir.c_str(),50.0f, 618.0f);
@@ -159,44 +279,67 @@ int main(int argc, char* argv[]) {
 		lastTime = thisTime;
 
 		//check for input events
-		if(SDL_PollEvent(&event))
+		while(SDL_PollEvent(&event) != 0)
 		{
 			//check to see if the SDL Window is closed - player clicks X in window
 			if(event.type == SDL_QUIT)
 			{
 				gameRunning = false;
-				break;
 			}
-			if(event.type == SDL_KEYDOWN && event.key.repeat == 0)
-			{
-				switch(event.key.keysym.sym)
+			else {
+				if (event.type == SDL_KEYDOWN && event.key.repeat == 0)//key pressed
 				{
-					//case keyboardmovement
+					switch (event.key.keysym.sym)
+					{
+						//case keyboardmovement
 					case SDLK_ESCAPE:
 						gameRunning = false;
-					break;
-					//move right
+						break;
+						//move right
 					case SDLK_RIGHT:
 						player.playerVelocityX += player.playerSpeed;
-					break;
-					//move left
+						break;
+						//move left
 					case SDLK_LEFT:
 						player.playerVelocityX -= player.playerSpeed;
-					break;
+						break;
+						// Check to see if the player fired
+					case SDLK_SPACE:
+						// check to see if bullet is not already active
+						if (pBulletActive == false)
+						{
+							player.ammoCount -= 1;
+							// move to player's position
+							pBulletPos.x = player.playerPos.x;
+							pBulletPos.y = (player.playerPos.y + (player.playerPos.h / 2));
+
+							// check to see if the player is to the left or right of the turret and set the
+							// player's bulletDir as needed
+							if (player.playerPos.x < turretPos.x) {
+								pBulletDir = 5;
+							}
+							else {
+								pBulletDir = -5;
+							}
+							// active bullet
+							pBulletActive = true;
+						}
+						break;
+					}
 				}
-			}
-			else if(event.type == SDL_KEYUP && event.key.repeat == 0)
-			{
-				switch(event.key.keysym.sym)
+				else if (event.type == SDL_KEYUP && event.key.repeat == 0)//key released
 				{
-					//move right
+					switch (event.key.keysym.sym)
+					{
+						//move right
 					case SDLK_RIGHT:
 						player.playerVelocityX -= player.playerSpeed;
-					break;
-					//move left
+						break;
+						//move left
 					case SDLK_LEFT:
 						player.playerVelocityX += player.playerSpeed;
-					break;
+						break;
+					}
 				}
 			}
 		}
@@ -204,17 +347,167 @@ int main(int argc, char* argv[]) {
 		//update player
 		player.Update(deltaTime);
 
+		//check the distance to player
+		double distancex = ((turretPos.x + (turretPos.w / 2))
+			- (player.playerPos.x + (player.playerPos.w / 2)))
+			* ((turretPos.x + (turretPos.w / 2))
+				- (player.playerPos.x + (player.playerPos.w / 2)));
+		double distancey = (turretPos.y - player.playerPos.y)
+			* (turretPos.y - player.playerPos.y);
+
+		double calcdistance = sqrt(distancex + distancey);
+
+		if (eAlive == true)
+		{
+			if (calcdistance <= 425) {
+				//cout << "Turret is active" << endl;
+
+				turretActive = true;
+
+				//random number 1 - 10 (higher number, slower fire rate
+				int random_number = std::rand() % 50;
+
+				// check to see if bullet is not already active and random number equals 5
+				if ((eBulletActive) == false && (random_number == 5)) {
+
+					// move to player's position
+					eBulletPos.x = turretPos.x;
+					eBulletPos.y = (turretPos.y + (turretPos.h / 2));
+
+					// check to see if the player is to the left or right of the turret and set the
+					// player's bulletDir as needed
+					if (player.playerPos.x < turretPos.x) {
+						eBulletDir = -5;
+					}
+					else {
+						eBulletDir = 5;
+					}
+					// active bullet
+					eBulletActive = true;
+				}
+
+			}
+			else {
+				//cout << "Turret is not active" << endl;
+
+				turretActive = false;
+			}
+		}
+
+		//if the enemy bullet is active - update
+		if (eBulletActive) {
+			eBulletPos.x += eBulletDir;
+		}
+
+		// check for off screen - LEFT or RIGHT
+		if (eBulletPos.x > 1024 || eBulletPos.x < 0) {
+			eBulletActive = false;
+			eBulletPos.x = -200;
+			eBulletPos.y = -200;
+			eBulletDir = 0;
+		}
+
+		//if the player bullet is active - update
+		if (pBulletActive) {
+			pBulletPos.x += pBulletDir;
+		}
+
+		// check for off screen - LEFT or RIGHT
+		if (pBulletPos.x > 1024 || pBulletPos.x < 0) {
+			pBulletActive = false;
+			pBulletPos.x = -100;
+			pBulletPos.y = -100;
+			pBulletDir = 0;
+		}
+
+		// **** UPDATE Bullets if active - END *********
+
+		// ******************* COLLISION CHECK - START *******************
+		// Check for player collision with turret bullet
+		if (SDL_HasIntersection(&player.playerPos, &eBulletPos) && eAlive == true) {
+
+			//reset enemy bullet
+			eBulletActive = false;
+			eBulletPos.x = -200;
+			eBulletPos.y = -200;
+			eBulletDir = 0;
+
+			//subtract player health
+			player.playerHealth -= 1;
+			//cout << pHealth << endl;
+		}
+
+		// Check for turret collision with player bullet while active
+		if (SDL_HasIntersection(&turretPos, &pBulletPos) && turretActive == true && eAlive == true) {
+
+			//reset player bullet
+			pBulletActive = false;
+			pBulletPos.x = -200;
+			pBulletPos.y = -200;
+			pBulletDir = 0;
+
+			//subtract player health
+			eHealth -= 1;
+			cout << eHealth << endl;
+		}
+
+		// Check for turret collision with player bullet while NOT active
+		if (SDL_HasIntersection(&turretPos, &pBulletPos) && turretActive == false && eAlive == true) {
+
+			//reset player bullet
+			pBulletActive = false;
+			pBulletPos.x = -200;
+			pBulletPos.y = -200;
+			pBulletDir = 0;
+		}
+
+		if (eHealth <= 0)
+		{
+			eAlive = false;
+		}
+
+		if (player.playerHealth <= 0)
+		{
+			pAlive = false;
+		}
 		//draw section
 		//clear the SDL rendertarget
 		SDL_RenderClear(renderer);
 
 		SDL_RenderCopy(renderer, background ,NULL, &backgroundPos);
 
-		//draw player
-		player.Draw(renderer);
+		//draw enemy bullet if active
+		if (eBulletActive && eAlive == true && pAlive == true) {
+			SDL_RenderCopy(renderer, eBullet, NULL, &eBulletPos);
+		}
 
+		//draw player bullet if active
+		if (pBulletActive && pAlive == true) {
+			SDL_RenderCopy(renderer, playerBullet, NULL, &pBulletPos);
+		}
+
+		if (pAlive == true) {
+			//draw player
+			player.Draw(renderer);
+		}
+		else {
+			SDL_RenderCopy(renderer, deathScreen, NULL, &deathPos);
+		}
+
+		//check enemy health 
+		if (eHealth > 0)
+		{
+			//draw enemy 
+			SDL_RenderCopy(renderer, turret, NULL, &turretPos);
+		}
+		else {
+			turretActive = false;
+		}
 
 		SDL_RenderPresent(renderer);
+
+		// Delay so that we are at 60 FPS
+		SDL_Delay(16);
 
 	}
     //SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
