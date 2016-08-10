@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
     //////////////////////////////////////////////////////////////////////////////////
     //create the background
     //create a SDL surface to hold the background image
-    SDL_Surface *surface = IMG_Load((images_dir + "scene_1.png").c_str());
+    SDL_Surface *surface = IMG_Load((images_dir + "levelBackground2.png").c_str());
 
     //create a SDL texture
     SDL_Texture *background;
@@ -165,8 +165,12 @@ int main(int argc, char* argv[]) {
     //set the X,Y,W, and H for the Rectangle
     backgroundPos.x = 0;
     backgroundPos.y = 0;
-    backgroundPos.w = 1024;
-    backgroundPos.h = 768;
+    backgroundPos.w = 3072;
+    backgroundPos.h = 2304;
+
+	float X_pos = 0.0f;
+
+	float Y_pos = 0.0f;
 
     //////////////////////////////////////////////////////////////////////////////////
 
@@ -285,6 +289,13 @@ int main(int argc, char* argv[]) {
 	//int pHealth = 10;
 	int eHealth = 1;
 
+	//to change scenes based on player location
+	bool middle_left = true;
+	bool middle_middle = false;
+	bool middle_right = false;
+	bool bottom_middle = false;
+	bool top_right = false;
+
 	//init random number seed
 	srand(time(NULL));
 
@@ -365,7 +376,37 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
+//		bool middle_left = false;
+//		bool middle_middle = false;
+//		bool middle_right = false;
+//		bool bottom_middle = false;
+//		bool top_right = false;
 
+		if(middle_left == true)
+		{
+			backgroundPos.x = 0;
+			backgroundPos.y = -768;
+		}
+		if(middle_middle == true)
+		{
+			backgroundPos.x = -1024;
+			backgroundPos.y = -768;
+		}
+		if(middle_right == true)
+		{
+			backgroundPos.x = -2048;
+			backgroundPos.y = -768;
+		}
+		if(bottom_middle == true)
+		{
+			backgroundPos.x = -1024;
+			backgroundPos.y = -1536;
+		}
+		if(top_right == true)
+		{
+			backgroundPos.x = -2048;
+			backgroundPos.y = 0;
+		}
 		center.x = eBulletPos.w/2;
 		center.y = eBulletPos.h/2;
 
@@ -381,6 +422,17 @@ int main(int argc, char* argv[]) {
 
 		rotatePic += 15;
 
+//		if(player.playerPos.x >= 512 - player.playerPos.w && player.playerPos.x <= 2560 - player.playerPos.w)// && player.center.y <= 384)
+//		{
+//			player.playerPos.x = 460;
+//			backgroundPos.x -= player.playerVelocityX;
+//		}
+
+		if(player.playerPos.x >= 780 && player.playerPos.x <= 818)
+		{
+			backgroundPos.x = -1024;
+			//player.playerPos.x =
+		}
 		//check the distance to player
 		double distancex = ((turretPos.x + (turretPos.w / 2))
 			- (player.playerPos.x + (player.playerPos.w / 2)))
