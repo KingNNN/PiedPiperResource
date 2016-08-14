@@ -106,7 +106,7 @@ public:
 	SDL_Point center;
 
 	//player's creation method using passed in values for renderer, player number, path to the texture starting position X, starting position Y
-	Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPath, float x, float y);
+	Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPath, int x, int y);
 
 	//update the player using the passed in deltaTIme
 	void Update(float deltaTime);

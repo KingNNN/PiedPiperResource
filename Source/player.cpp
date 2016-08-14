@@ -1,6 +1,6 @@
 #include "player.h"
 
-Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPath, float x, float y)
+Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPath, int x, int y)
 {
 	//loat health GUI
 	health5 = IMG_LoadTexture(renderer, (filePath + "health_5.png").c_str());
