@@ -110,7 +110,6 @@ void Player::Draw(SDL_Renderer *renderer)
 		SDL_RenderCopyEx(renderer, texture2, NULL, &playerPos, playerAngle, &center, SDL_FLIP_NONE);
 	}
 
-
 	//display player health
 	if(playerHealth == 5)
 	{
@@ -187,6 +186,7 @@ void Player::Draw(SDL_Renderer *renderer)
 void Player::Update(float deltaTime)
 {
 	playerPos.x += playerVelocityX;
+	playerPos.y += playerVelocityY;
 
 	//if player goes to far left
 	if(playerPos.x < 20)

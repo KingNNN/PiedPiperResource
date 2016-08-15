@@ -53,6 +53,7 @@ bool pAlive = true;
 bool eAlive2 = true;
 bool enemyDead = false;
 bool enemyDead2 = false;
+bool ladder = false;
 
 int playerHitPoints = 3;
 int ammoCount = 10;
@@ -89,6 +90,10 @@ float Y_pos = 0.0f;
 
 float timeReset = 0;
 float timeReset2 = 0;
+
+bool decending = false;
+bool movingUp = false;
+bool movingDown = false;
 
 #include <vector>
 
@@ -383,11 +388,17 @@ int main(int argc, char* argv[]) {
 						break;
 						//move right
 					case SDLK_RIGHT:
-						player.playerVelocityX += player.playerSpeed;
+							player.playerVelocityX += player.playerSpeed;
 						break;
 						//move left
 					case SDLK_LEFT:
-						player.playerVelocityX -= player.playerSpeed;
+							player.playerVelocityX -= player.playerSpeed;
+						break;
+					case SDLK_DOWN:
+						if(ladder == true)
+						{
+							player.playerVelocityY += player.playerSpeed;
+						}
 						break;
 						// Check to see if the player fired
 					case SDLK_SPACE:
@@ -420,11 +431,17 @@ int main(int argc, char* argv[]) {
 					{
 						//move right
 					case SDLK_RIGHT:
-						player.playerVelocityX -= player.playerSpeed;
+							player.playerVelocityX -= player.playerSpeed;
 						break;
 						//move left
 					case SDLK_LEFT:
-						player.playerVelocityX += player.playerSpeed;
+							player.playerVelocityX += player.playerSpeed;
+						break;
+					case SDLK_DOWN:
+						if(ladder == true)
+						{
+							player.playerVelocityY -= player.playerSpeed;
+						}
 						break;
 					}
 				}
@@ -516,17 +533,17 @@ int main(int argc, char* argv[]) {
 			scenePos = 4;
 			backgroundPos.x = -1024;
 			backgroundPos.y = -1536;
-			if (movingRight == true)
+			if (movingUp == true)
 			{
-				player.playerPos.x = 52;
-				player.playerPos.y = 618;
-				movingRight = false;
+				//player.playerPos.x = 52;
+				player.playerPos.y = 701;
+				movingUp = false;
 			}
-			if (movingLeft == true)
+			if (movingDown == true)
 			{
-				player.playerPos.x = 920;
-				player.playerPos.y = 618;
-				movingLeft = false;
+				//player.playerPos.x = 920;
+				player.playerPos.y = 50;
+				movingDown = false;
 			}
 			bottom_middle = false;
 		}
@@ -602,6 +619,22 @@ int main(int argc, char* argv[]) {
 			if (scenePos == 3)
 			{
 				movingLeft = true;
+				middle_middle = true;
+			}
+		}
+		if(player.playerPos.y >= 700)
+		{
+			if(scenePos == 2)
+			{
+				movingDown = true;
+				bottom_middle = true;
+			}
+		}
+		if(player.playerPos.y <= 49)
+		{
+			if(scenePos == 4)
+			{
+				movingUp = true;
 				middle_middle = true;
 			}
 		}
@@ -731,6 +764,13 @@ int main(int argc, char* argv[]) {
 			pBulletDir = 0;
 		}
 
+		if(player.playerPos.x >= 426 && player.playerPos.x <= 440 && scenePos == 2)
+		{
+			ladder = true;
+			//if(player.Pos.y >= )
+		}
+
+		//1440-1470
 		// **** UPDATE Bullets if active - END *********
 
 		// ******************* COLLISION CHECK - START *******************
@@ -755,8 +795,8 @@ int main(int argc, char* argv[]) {
 		{
 			//reset enemy bullet
 			//enemyActive = false;
-			enemyPos.x = enemyPos.x;
-			enemyPos.y = enemyPos.y;
+			//enemyPos.x = enemyPos.x;
+			//enemyPos.y = enemyPos.y;
 			enemyDir = 0;
 
 			//subtract player health
