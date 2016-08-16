@@ -51,8 +51,12 @@ bool gameRunning = true;
 bool eAlive = true;
 bool pAlive = true;
 bool eAlive2 = true;
+bool eAlive3 = true;
+bool eAlive4 = true;
 bool enemyDead = false;
 bool enemyDead2 = false;
+bool enemyDead3 = false;
+bool enemyDead4 = false;
 bool ladder = false;
 
 int playerHitPoints = 3;
@@ -79,6 +83,18 @@ SDL_Rect deathPos;
 // Create a SDL Rectangle for the roomTexture's position and size
 SDL_Rect enemyPos;
 
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect enemyPos2;
+
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect keyPos;
+
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect flagPos;
+
+// Create a SDL Rectangle for the roomTexture's position and size
+SDL_Rect winPos;
+
 //center of the image to rotate
 SDL_Point center;
 
@@ -90,10 +106,14 @@ float Y_pos = 0.0f;
 
 float timeReset = 0;
 float timeReset2 = 0;
+float timeReset3 = 0;
 
 bool decending = false;
 bool movingUp = false;
 bool movingDown = false;
+bool hasFlag = false;
+bool hasKey = false;
+bool wingame = false;
 
 #include <vector>
 
@@ -322,6 +342,109 @@ int main(int argc, char* argv[]) {
 	enemyPos.h = 50;
 
 	// ******************* Create the enemy texture - END *******************
+
+	// ******************* Create the enemy texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surface5enemy3 = IMG_Load((images_dir + "enemyNotMoving.png").c_str());
+	SDL_Surface *surface5Moving3 = IMG_Load((images_dir + "enemyMoving.png").c_str());
+	SDL_Surface *surface5Hit3 = IMG_Load((images_dir + "enemyHit.png").c_str());
+	SDL_Surface *surface5Hit23 = IMG_Load((images_dir + "enemyHit2.png").c_str());
+	SDL_Surface *surface5DeadPic3 = IMG_Load((images_dir + "enemyDead.png").c_str());
+
+	// SDL Texture
+	SDL_Texture *enemy3;
+	SDL_Texture *enemyMoving3;
+	SDL_Texture *enemyHit3;
+	SDL_Texture *enemyHit23;
+	SDL_Texture *enemyDeadPic3;
+
+	//place surface info into the texture bkdg1
+	enemy3 = SDL_CreateTextureFromSurface(renderer, surface5enemy3);
+	enemyMoving3 = SDL_CreateTextureFromSurface(renderer, surface5Moving3);
+	enemyHit3 = SDL_CreateTextureFromSurface(renderer, surface5Hit3);
+	enemyHit23 = SDL_CreateTextureFromSurface(renderer, surface5Hit23);
+	enemyDeadPic3 = SDL_CreateTextureFromSurface(renderer, surface5DeadPic3);
+
+	//free the SDL surface
+	SDL_FreeSurface(surface5enemy3);
+	SDL_FreeSurface(surface5Moving3);
+	SDL_FreeSurface(surface5Hit3);
+	SDL_FreeSurface(surface5Hit23);
+	SDL_FreeSurface(surface5DeadPic3);
+
+	// Set the x, y, width and height SDL Rectangle values
+	enemyPos2.x = 800;
+	enemyPos2.y = 418;
+	enemyPos2.w = 50;
+	enemyPos2.h = 50;
+
+	// ******************* Create the enemy texture - END *******************
+	// ******************* Create the key texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surfaceKey = IMG_Load((images_dir + "key.png").c_str());
+
+	// SDL Texture
+	SDL_Texture *key;
+
+	// load the image into the texture
+	key = SDL_CreateTextureFromSurface(renderer, surfaceKey);
+
+	//free the SDL surface
+	SDL_FreeSurface(surfaceKey);
+
+	// Set the x, y, width and height SDL Rectangle values
+	keyPos.x = 50;
+	keyPos.y = 680;
+	keyPos.w = 20;
+	keyPos.h = 20;
+
+	// ******************* Create the key texture - END *******************
+
+	// ******************* Create the flag texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surfaceFlag = IMG_Load((images_dir + "flag.png").c_str());
+
+	// SDL Texture
+	SDL_Texture *flag;
+
+	// load the image into the texture
+	flag = SDL_CreateTextureFromSurface(renderer, surfaceFlag);
+
+	//free the SDL surface
+	SDL_FreeSurface(surfaceFlag);
+
+	// Set the x, y, width and height SDL Rectangle values
+	flagPos.x = 800;
+	flagPos.y = 640;
+	flagPos.w = 20;
+	flagPos.h = 20;
+
+	// ******************* Create the flag texture - END *******************
+
+	// ******************* Create the win texture - START *******************
+
+	//create a SDL surface to hold the background image
+	SDL_Surface *surfaceWin = IMG_Load((images_dir + "win.png").c_str());
+
+	// SDL Texture
+	SDL_Texture *win;
+
+	// load the image into the texture
+	win = SDL_CreateTextureFromSurface(renderer, surfaceWin);
+
+	//free the SDL surface
+	SDL_FreeSurface(surfaceWin);
+
+	// Set the x, y, width and height SDL Rectangle values
+	winPos.x = 0;
+	winPos.y = 0;
+	winPos.w = 1024;
+	winPos.h = 768;
+
+	// ******************* Create the win texture - END *******************
 	//////////////////////////////////////////////////////////////////////////////////
 	//***** SDL Event to handle input *****
 	SDL_Event event;
@@ -329,6 +452,7 @@ int main(int argc, char* argv[]) {
 	// boolean to see if the turret is active
 	bool turretActive = false;
 	bool enemyActive = false;
+	bool enemyActive2 = false;
 
 	//basic vars for simple player(p)/enemy(e) bullet fire with 1 bullet each
 	bool eBulletActive = true;
@@ -336,12 +460,15 @@ int main(int argc, char* argv[]) {
 
 	int eBulletDir = 0;
 	int enemyDir = 0;
+	int enemyDir2 = 0;
 	int pBulletDir = 0;
 
 	// vars for playerHealth and bullet health
-	//int pHealth = 10;
+	//int pHealth = 10;s
 	int eHealth = 1;
 	int eHealth2 = 2;
+	int eHealth3 = 2;
+	int eHealth4 = 2;
 
 	//which scene you are in
 	int scenePos = 1;
@@ -400,6 +527,12 @@ int main(int argc, char* argv[]) {
 							player.playerVelocityY += player.playerSpeed;
 						}
 						break;
+					case SDLK_UP:
+						if(ladder == true)
+						{
+							player.playerVelocityY -= player.playerSpeed;
+						}
+						break;
 						// Check to see if the player fired
 					case SDLK_SPACE:
 						// check to see if bullet is not already active
@@ -443,6 +576,12 @@ int main(int argc, char* argv[]) {
 							player.playerVelocityY -= player.playerSpeed;
 						}
 						break;
+					case SDLK_UP:
+						if(ladder == true)
+						{
+							player.playerVelocityY += player.playerSpeed;
+						}
+						break;
 					}
 				}
 			}
@@ -463,6 +602,9 @@ int main(int argc, char* argv[]) {
 
 			enemyPos.x = 800;
 			enemyPos.y = 618;
+
+			enemyPos2.x = -800;
+			enemyPos2.y = 618;
 
 			//update background pos
 			backgroundPos.x = 0;
@@ -491,6 +633,8 @@ int main(int argc, char* argv[]) {
 			turretPos.y = 618;
 			enemyPos.x = -800;
 			enemyPos.y = 618;
+			enemyPos2.x = -800;
+			enemyPos2.y = 701;
 			backgroundPos.x = -1024;
 			backgroundPos.y = -768;
 			if (movingRight == true)
@@ -508,22 +652,18 @@ int main(int argc, char* argv[]) {
 			middle_middle = false;
 		}
 		//move scene to middle right
-		if(middle_left == false && middle_middle == false && middle_right == true && top_right == false && bottom_middle == false)
+		if(middle_left == false && middle_middle == false && middle_right == true && top_right == false && bottom_middle == false && hasKey == true)
 		{
 			scenePos = 3;
 			backgroundPos.x = -2048;
 			backgroundPos.y = -768;
+			enemyPos2.x = -800;
+			enemyPos2.y = 701;
 			if (movingRight == true)
 			{
 				player.playerPos.x = 52;
 				player.playerPos.y = 618;
 				movingRight = false;
-			}
-			if (movingLeft == true)
-			{
-				player.playerPos.x = 920;
-				player.playerPos.y = 618;
-				movingLeft = false;
 			}
 			middle_right = false;
 		}
@@ -533,6 +673,8 @@ int main(int argc, char* argv[]) {
 			scenePos = 4;
 			backgroundPos.x = -1024;
 			backgroundPos.y = -1536;
+			enemyPos2.x = 700;
+			enemyPos2.y = 651;
 			if (movingUp == true)
 			{
 				//player.playerPos.x = 52;
@@ -542,7 +684,7 @@ int main(int argc, char* argv[]) {
 			if (movingDown == true)
 			{
 				//player.playerPos.x = 920;
-				player.playerPos.y = 50;
+				player.playerPos.y = 51;
 				movingDown = false;
 			}
 			bottom_middle = false;
@@ -553,17 +695,14 @@ int main(int argc, char* argv[]) {
 			scenePos = 5;
 			backgroundPos.x = -2048;
 			backgroundPos.y = 0;
-			if (movingRight == true)
+			enemyPos2.x = -800;
+			enemyPos2.y = 701;
+	
+			if (movingUp == true)
 			{
-				player.playerPos.x = 51;
-				player.playerPos.y = 618;
-				movingRight = false;
-			}
-			if (movingLeft == true)
-			{
-				player.playerPos.x = 920;
-				player.playerPos.y = 618;
-				movingLeft = false;
+				//player.playerPos.x = 52;
+				player.playerPos.y = 701;
+				movingUp = false;
 			}
 			top_right = false;
 		}
@@ -582,6 +721,13 @@ int main(int argc, char* argv[]) {
 		}
 		else {
 			timeReset2 = 0;
+		}
+		if (enemyDead3 == true)
+		{
+			timeReset3 += 1;
+		}
+		else {
+			timeReset3 = 0;
 		}
 
 		//update player
@@ -626,8 +772,8 @@ int main(int argc, char* argv[]) {
 		{
 			if(scenePos == 2)
 			{
-				movingDown = true;
 				bottom_middle = true;
+				movingDown = true;
 			}
 		}
 		if(player.playerPos.y <= 49)
@@ -637,7 +783,26 @@ int main(int argc, char* argv[]) {
 				movingUp = true;
 				middle_middle = true;
 			}
+			if (scenePos == 3)
+			{
+				movingUp = true;
+				top_right = true;
+			}
+			if (scenePos == 5)
+			{
+				movingUp = true;
+				//top_right = true;
+			}
 		}
+
+		if (player.playerPos.y > 645)
+		{
+			if (scenePos == 4)
+			{
+				player.playerPos.y = 645;
+			}
+		}
+		
 		////translate player to middle left
 		//if (player.playerPos.x >= 0 && player.playerPos.x <= 1015)
 		//{
@@ -661,8 +826,17 @@ int main(int argc, char* argv[]) {
 		double distancey2 = (enemyPos.y - player.playerPos.y)
 			* (enemyPos.y - player.playerPos.y);
 
+		//check the distance to player on the enemy
+		double distancex3 = ((enemyPos2.x + (enemyPos2.w / 2))
+			- (player.playerPos.x + (player.playerPos.w / 2)))
+			* ((enemyPos2.x + (enemyPos2.w / 2))
+				- (player.playerPos.x + (player.playerPos.w / 2)));
+		double distancey3 = (enemyPos2.y - player.playerPos.y)
+			* (enemyPos2.y - player.playerPos.y);
+
 		double calcdistance = sqrt(distancex + distancey);
 		double calcdistance2 = sqrt(distancex2 + distancey2);
+		double calcdistance3 = sqrt(distancex3 + distancey3);
 
 		if (eAlive == true)
 		{
@@ -714,7 +888,7 @@ int main(int argc, char* argv[]) {
 
 				// check to see if the player is to the left or right of the turret and set the
 				// player's bulletDir as needed
-				if (player.playerPos.x < enemyPos.x) {
+				if (player.playerPos.x < enemyPos .x) {
 					enemyDir = -2;
 				}
 				else {
@@ -725,6 +899,31 @@ int main(int argc, char* argv[]) {
 				enemyActive = false;
 			}
 		}
+
+		if (eAlive3 == true)
+		{
+			if (calcdistance3 <= 200) {
+				//cout << "Turret is active" << endl;
+
+				enemyActive2 = true;
+
+				// move to player's position
+				eBulletPos.x = turretPos.x;
+				eBulletPos.y = (turretPos.y + (turretPos.h / 2));
+
+				// check to see if the player is to the left or right of the turret and set the
+				// player's bulletDir as needed
+				if (player.playerPos.x < enemyPos2.x) {
+					enemyDir2 = -2;
+				}
+				else {
+					enemyDir2 = 2;
+				}
+			}
+			else {
+				enemyActive2 = false;
+			}
+		}
 		//if the enemy bullet is active - update
 		if (eBulletActive) {
 			eBulletPos.x += eBulletDir;
@@ -733,6 +932,11 @@ int main(int argc, char* argv[]) {
 		//if the enemy bullet is active - update
 		if (enemyActive) {
 			enemyPos.x += enemyDir;
+		}
+
+		//if the enemy bullet is active - update
+		if (enemyActive2) {
+			enemyPos2.x += enemyDir2;
 		}
 
 		// check for off screen - LEFT or RIGHT
@@ -750,6 +954,13 @@ int main(int argc, char* argv[]) {
 			enemyDir = 0;
 		}
 
+		if (enemyPos2.x > 1024 || enemyPos2.x < 0) {
+			enemyActive2 = false;
+			enemyPos2.x = -200;
+			enemyPos2.y = -200;
+			enemyDir2 = 0;
+		}
+
 		//if the player bullet is active - update
 		if (pBulletActive) {
 			pBulletPos.x += pBulletDir;
@@ -764,12 +975,70 @@ int main(int argc, char* argv[]) {
 			pBulletDir = 0;
 		}
 
-		if(player.playerPos.x >= 426 && player.playerPos.x <= 440 && scenePos == 2)
+		if(player.playerPos.x >= 405 && player.playerPos.x <= 430 && scenePos == 2)
 		{
 			ladder = true;
 			//if(player.Pos.y >= )
 		}
 
+		if (scenePos == 4 && player.playerPos.x >= 405 && player.playerPos.x <= 430)
+		{
+			ladder = true;
+		}
+
+		if (scenePos == 2 && player.playerPos.y <= 618)
+		{
+			player.playerPos.y = 618;
+		}
+
+		if (player.playerPos.x >= 0 && player.playerPos.x <= 51 && scenePos == 4)
+		{
+			hasKey = true;
+			player.hasKey = true;
+		}
+
+		if (player.playerPos.x >= 800 && player.playerPos.x <= 820 && scenePos == 2)
+		{
+			hasFlag = true;
+			player.hasFlag = true;
+		}
+
+
+		if (player.playerPos.x >= 530 && scenePos == 3)
+		{
+			player.playerPos.x = 530;
+
+			ladder = true;
+		}
+		if (player.playerPos.y >= 618 && scenePos == 3)
+		{
+			player.playerPos.y = 618;
+
+		}
+		if(player.playerPos.y >= 650 && scenePos == 4)
+		{
+			player.playerPos.y = 650;
+		}
+
+		if (player.playerPos.y <= 315 && scenePos == 5)
+		{
+			player.playerPos.y = 315;
+		}
+
+		if (player.playerPos.x <= 520 && player.playerPos.y == 315 && scenePos == 5 && hasFlag == true)
+		{
+			flagPos.x = 480;
+			flagPos.y = 330;
+			flagPos.w = 40;
+			flagPos.h = 40;
+			wingame = true;
+			hasFlag = false;
+		}
+
+		/*if (player.playerPos.y <= 50 && scenePos == 3)
+		{
+			player.playerPos.y = 700;
+		}*/
 		//1440-1470
 		// **** UPDATE Bullets if active - END *********
 
@@ -803,6 +1072,20 @@ int main(int argc, char* argv[]) {
 			player.playerHealth -= 1;
 			//cout << pHealth << endl;
 		}
+
+		if (SDL_HasIntersection(&player.playerPos, &enemyPos2) && eAlive3 == true)
+		{
+			//reset enemy bullet
+			//enemyActive = false;
+			//enemyPos.x = enemyPos.x;
+			//enemyPos.y = enemyPos.y;
+			enemyDir2 = 0;
+
+			//subtract player health
+			player.playerHealth -= 1;
+			//cout << pHealth << endl;
+		}
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////
 		// Check for turret collision with player bullet while active
 		if (SDL_HasIntersection(&turretPos, &pBulletPos) && turretActive == true && eAlive == true)
@@ -832,6 +1115,21 @@ int main(int argc, char* argv[]) {
 			eHealth2 -= 1;
 			//cout << eHealth2 << endl;
 		}
+
+		if (SDL_HasIntersection(&enemyPos2, &pBulletPos) && enemyActive2 == true && eAlive3 == true)
+		{
+			//reset player bullet
+			player.threw = false;
+			pBulletActive = false;
+			pBulletPos.x = -200;
+			pBulletPos.y = -200;
+			pBulletDir = 0;
+
+			//subtract player health
+			eHealth3 -= 1;
+			//cout << eHealth2 << endl;
+		}
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////
 		// Check for turret collision with player bullet while NOT active
 		if (SDL_HasIntersection(&turretPos, &pBulletPos) && turretActive == false && eAlive == true)
@@ -852,6 +1150,15 @@ int main(int argc, char* argv[]) {
 			pBulletPos.y = -200;
 			pBulletDir = 0;
 		}
+		if (SDL_HasIntersection(&enemyPos2, &pBulletPos) && enemyActive2 == false && eAlive3 == true)
+		{
+			//reset player bullet
+			player.threw = false;
+			pBulletActive = false;
+			pBulletPos.x = -200;
+			pBulletPos.y = -200;
+			pBulletDir = 0;
+		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////
 		if (eHealth <= 0)
 		{
@@ -861,13 +1168,15 @@ int main(int argc, char* argv[]) {
 		{
 			eAlive2 = false;
 		}
+		if (eHealth3 <= 0)
+		{
+			eAlive3 = false;
+		}
 
 		if (player.playerHealth <= 0)
 		{
 			pAlive = false;
 		}
-
-		
 
 		cout << timeReset2 << endl;
 
@@ -887,6 +1196,27 @@ int main(int argc, char* argv[]) {
 		if (pBulletActive && pAlive == true)
 		{
 			SDL_RenderCopyEx(renderer, playerBullet, NULL, &pBulletPos, rotatePic, &center, SDL_FLIP_NONE);
+		}
+
+		//draw the key
+		if (scenePos == 4 && hasKey == false)
+		{
+			SDL_RenderCopy(renderer, key, NULL, &keyPos);
+		}
+
+		//draw the flag
+		if (scenePos == 2 && hasFlag == false)
+		{
+			SDL_RenderCopy(renderer, flag, NULL, &flagPos);
+		}
+		else if (scenePos == 5 && hasFlag == false)
+		{
+			SDL_RenderCopy(renderer, flag, NULL, &flagPos);
+		}
+
+		if (wingame == true)
+		{
+			SDL_RenderCopy(renderer, win, NULL, &winPos);
 		}
 
 		//turret
@@ -942,6 +1272,35 @@ int main(int argc, char* argv[]) {
 			enemyActive = false;
 		}
 
+		//enemy
+		if (eHealth3 > 0)
+		{
+			if (enemyActive2 == false)
+			{
+				//draw enemy 
+				SDL_RenderCopy(renderer, enemy3, NULL, &enemyPos2);
+			}
+			else if (enemyActive2 == true) {
+				//draw enemy running
+				SDL_RenderCopy(renderer, enemyMoving3, NULL, &enemyPos2);
+			}
+
+		}
+		else if (eHealth3 <= 0)
+		{
+			enemyDead3 = true;
+			if (timeReset3 <= 15) {
+				SDL_RenderCopy(renderer, enemyHit3, NULL, &enemyPos2);
+			}
+			else if (timeReset3 <= 35)
+			{
+				SDL_RenderCopy(renderer, enemyHit23, NULL, &enemyPos2);
+			}
+			else {
+				SDL_RenderCopy(renderer, enemyDeadPic3, NULL, &enemyPos2);
+			}
+			enemyActive2 = false;
+		}
 
 		if (pAlive == true) {
 					//draw player

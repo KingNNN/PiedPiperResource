@@ -67,6 +67,7 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	//load threw texture of the player
 	texture2 = IMG_LoadTexture(renderer, playerThrew.c_str());
 
+
 	//set the SDL_Rect X and Y for the player
 	playerPos.x = x;
 	playerPos.y = y;
@@ -84,6 +85,8 @@ Player::Player(SDL_Renderer *renderer, int pNum, string filePath, string audioPa
 	//set the initial values so that Player can shoot
 	xDirOld = 1;
 	yDirOld = 0;
+
+	playerAngle = 0;
 
 	//center of the image rectangle
 	center.x = playerPos.w/2;
@@ -177,10 +180,21 @@ void Player::Draw(SDL_Renderer *renderer)
 	{
 		SDL_RenderCopy(renderer, ammo0, NULL, &ammo0_Rect);
 	}
-
-	SDL_RenderCopy(renderer, flag, NULL, &flag_Rect);
-	SDL_RenderCopy(renderer, key, NULL, &key_Rect);
-
+	if (hasKey == true)
+	{
+		SDL_RenderCopy(renderer, key, NULL, &key_Rect);
+	}
+	else {
+		SDL_RenderCopy(renderer, key_Background, NULL, &key_Background_Rect);
+	}
+	if (hasFlag == true)
+	{
+		SDL_RenderCopy(renderer, flag, NULL, &flag_Rect);
+	}
+	else {
+		SDL_RenderCopy(renderer, flag_Background, NULL, &flag_Background_Rect);
+	}
+	
 }
 
 void Player::Update(float deltaTime)

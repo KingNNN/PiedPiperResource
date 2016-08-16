@@ -82,6 +82,8 @@ public:
 
 	bool moveRight;
 	bool moveLeft;
+	bool hasFlag;
+	bool hasKey;
 
 	//add x and y values
 	Sint16 Xvalue, Yvalue;
